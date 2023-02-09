@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics, mixins
+from rest_framework import authentication ,generics, mixins, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -8,9 +8,13 @@ from .models import Product
 from .serializers import ProductSerializer
 # Create your views here.
 
-class ProductListCreateAPIVoew(generics.ListCreateAPIView):
+class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    authentication_classes = [authentication.SessionAuthentication]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
@@ -22,7 +26,7 @@ class ProductListCreateAPIVoew(generics.ListCreateAPIView):
             content = title
         serializer.save(content=content)
 
-product_list_create_view = ProductListCreateAPIVoew.as_view()
+product_list_create_view = ProductListCreateAPIView.as_view()
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
